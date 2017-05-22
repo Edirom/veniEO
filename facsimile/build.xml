@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="mei-facsimile">
+    
+    <property name="imageSet.uri" value="pics"/>
+    <property name="graphics.prefix" value=""/>
+<!--    <property name="transformations.base" value="."/>-->
+
+    <taskdef resource="antlib.xml" classpath="../../image-size-report-task/build/image-size-report.jar"/>
+
+    <target name="report">
+        <generate-image-size-report reportFile="imagesize-report.xml" checkUpToDate="false" failOnUnreadable="true" format="&lt;image name=&quot;{0}&quot; height=&quot;{1}&quot; width=&quot;{2}&quot;/&gt;">
+<!--            <sort>-->
+            <fileset dir="${imageSet.uri}">
+                <include name="**/*.jpg"/>
+            </fileset>
+            <!--</sort>-->
+        </generate-image-size-report>
+    </target>
+    
+    <target name="facsimile" depends="report">
+        <java classname="net.sf.saxon.Transform">
+            <arg value="-s:imagesize-report.xml"/>
+            <arg value="-xsl:from.imageSet.xsl"/> 
+            <arg value="-o:facsimile.xml"/>
+            <arg value="graphics.prefix=${graphics.prefix}"/>
+        </java>
+        <delete file="imagesize-report.xml"/>
+    </target>
+
+</project>
+<!--<project basedir="." name="jtei-pdf" 
+    xmlns:if="ant:if" xmlns:unlessx="ant:unless">
+    
+    <taskdef name="fop"
+        classname="org.apache.fop.tools.anttasks.Fop"/>
+    
+    <!-\- note: following properties are passed as parameters via Oxygen:
+      -${cfd}:  current file directory path (i.e. where the source XML document lives)
+      -${dest.file.basename}: base file name of the article (everything before -(source|layout)
+      -${transformations.base}: location of the stylesheets folder 
+  -\->
+    <property name="echo.separator" value="************************************************"/>
+    <!-\- can be overridden by passing it as parameter at project/framework level -\-> 
+    <property name="transformations.base" value="${pd}/transformations"/>
+    <property name="fop.config" value="fonts.conf.xml"/>
+    
+    <target name="transform-fo">
+        <delete file="${cfd}/${dest.file.basename}.fo"/>
+        <java classname="net.sf.saxon.Transform">
+            <arg value="-s:${cfd}/${cfn}.xml"/>
+            <arg value="-xsl:${transformations.base}/pdf/to.xsl"/> 
+            <arg value="-o:${cfd}/${dest.file.basename}.fo"/>
+        </java>
+    </target>
+    
+    <target name="transform-pdf" depends="transform-fo">
+        <fop format="application/pdf"
+            fofile="${cfd}/${dest.file.basename}.fo"
+            outfile="${cfd}/${dest.file.basename}.pdf" 
+            userconfig="${fop.config}"/>
+        <delete file="${cfd}/${dest.file.basename}.fo"/>
+    </target>
+    
+</project>-->
