@@ -30,3 +30,4 @@ node_modules
 # facsimile
 facsimile/pics
 facsimile/output
+facsimile/lib
