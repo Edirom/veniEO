@@ -20,7 +20,7 @@
     <target name="facsimile" depends="report">
         <java classname="net.sf.saxon.Transform">
             <arg value="-s:imagesize-report.xml"/>
-            <arg value="-xsl:from.imageSet.xsl"/> 
+            <arg value="-xsl:from.imageSet.xsl"/>
             <arg value="-o:facsimile.xml"/>
             <arg value="graphics.prefix=${graphics.prefix}"/>
         </java>
