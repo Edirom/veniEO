@@ -19,13 +19,13 @@
     </target>
     
     <target name="facsimile" depends="report">
-        <java classname="net.sf.saxon.Transform">
-            <arg value="-s:imagesize-report.xml"/>
+        <java classname="net.sf.saxon.Transform" classpath="${basedir}/lib/saxon/saxon9he.jar">
+            <arg value="-s:output/imageSet.xml"/>
             <arg value="-xsl:from.imageSet.xsl"/>
-            <arg value="-o:facsimile.xml"/>
+            <arg value="-o:output/facsimile.xml"/>
             <arg value="graphics.prefix=${graphics.prefix}"/>
         </java>
-        <delete file="imagesize-report.xml"/>
+        <delete file="output/imagesize-report.xml"/>
     </target>
 
 </project>
