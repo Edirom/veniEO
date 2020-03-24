@@ -5,6 +5,9 @@
     <property name="graphics-uri.prefix" value=""/>
     <property name="saxon-path" value="${basedir}/lib/saxon/saxon9he.jar"/>
 <!--    <property name="transformations.base" value="."/>-->
+    <target name="clean">
+        <delete dir="output"/>
+    </target>
 
 
     <target name="report">
