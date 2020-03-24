@@ -16,6 +16,14 @@
             </fileset>
             <!--</sort>-->
         </generate-image-size-report>
+        <loadfile srcfile="output/imagesize-report.xml" property="image-size-report"/>
+        <copy todir="output">
+            <file file="template/imageSet.xml"/>
+            <filterset>
+                <filter value="${image-size-report}" token="image-size-report"/>
+            </filterset>
+        </copy>
+        <delete file="output/imagesize-report.xml"/>
     </target>
     
     <target name="facsimile" depends="report">
