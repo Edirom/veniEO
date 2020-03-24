@@ -30,6 +30,15 @@
         <echo>initialized</echo>
     </target>
 
+    <target name="isize-clean">
+        <ant antfile="../modules/image-size-report-task/build.xml" target="clean" usenativebasedir="yes"/>
+    </target>
+    
+    <target name="isize-build">
+        <ant antfile="../modules/image-size-report-task/build.xml" target="build" usenativebasedir="yes"/>
+        <ant antfile="../modules/image-size-report-task/build.xml" target="jar" usenativebasedir="yes"/>
+    </target>
+    
 
     <target name="report">
         <mkdir dir="output"/>
