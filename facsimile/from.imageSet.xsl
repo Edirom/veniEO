@@ -16,7 +16,6 @@
     
     <xsl:output indent="yes" encoding="UTF-8"/>
     
-    <xsl:param name="graphics.prefix">@@YOUR-GRAPHICS-PREFIX/@@</xsl:param>
     
     <xsl:template match="/">
         <xsl:element name="facsimile" namespace="http://www.music-encoding.org/ns/mei">
@@ -25,8 +24,8 @@
                     <xsl:attribute name="xml:id" select="concat('edirom_surface_',uuid:randomUUID())"/>
                     <xsl:attribute name="n" select="position()"/>
                     <xsl:element name="graphic" namespace="http://www.music-encoding.org/ns/mei">
-                        <xsl:attribute name="target" select="concat($graphics.prefix,@name)"/>
                         <xsl:attribute name="xml:id" select="concat('edirom_graphic_',uuid:randomUUID())"/>
+                        <xsl:attribute name="target" select="concat($graphics-uri.prefix,@name)"/>
                         <xsl:attribute name="type">facsimile</xsl:attribute>
                         <xsl:attribute name="width" select="@width"/>
                         <xsl:attribute name="height" select="@height"/>

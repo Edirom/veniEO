@@ -2,7 +2,7 @@
 <project basedir="." name="mei-facsimile">
     
     <property name="imageSet.uri" value="pics"/>
-    <property name="graphics.prefix" value=""/>
+    <property name="graphics-uri.prefix" value=""/>
 <!--    <property name="transformations.base" value="."/>-->
 
     <taskdef resource="antlib.xml" classpath="../../image-size-report-task/build/image-size-report.jar"/>
