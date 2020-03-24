@@ -15,6 +15,20 @@
         <antcall target="isize-clean"/>
     </target>
 
+    <target name="saxon-download">
+        <mkdir dir="temp"/>
+        <get src="https://sourceforge.net/projects/saxon/files/Saxon-HE/9.9/SaxonHE9-9-1-7J.zip/download" dest="temp/"/>
+    </target>
+    
+    <target name="saxon-unzip" depends="saxon-download">
+        <mkdir dir="lib"/>
+        <unzip src="temp/download" overwrite="true" dest="lib/saxon/"/>
+    </target>
+    
+    <target name="saxon-prepare" depends="saxon-unzip">
+        <delete dir="temp/"/>
+        <echo>initialized</echo>
+    </target>
 
 
     <target name="report">
