@@ -7,6 +7,7 @@
 
 
     <target name="report">
+        <mkdir dir="output"/>
         <taskdef resource="antlib.xml" classpath="../modules/image-size-report-task/build/image-size-report.jar"/>
         <generate-image-size-report reportFile="output/imagesize-report.xml" checkUpToDate="false" failOnUnreadable="true" format="&lt;image name=&quot;{0}&quot; height=&quot;{1}&quot; width=&quot;{2}&quot; uuid=&quot;{3}&quot;/&gt;">
             <!--<sort>-->
