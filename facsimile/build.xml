@@ -5,11 +5,11 @@
     <property name="graphics-uri.prefix" value=""/>
 <!--    <property name="transformations.base" value="."/>-->
 
-    <taskdef resource="antlib.xml" classpath="../../image-size-report-task/build/image-size-report.jar"/>
 
     <target name="report">
         <generate-image-size-report reportFile="imagesize-report.xml" checkUpToDate="false" failOnUnreadable="true" format="&lt;image name=&quot;{0}&quot; height=&quot;{1}&quot; width=&quot;{2}&quot;/&gt;">
 <!--            <sort>-->
+        <taskdef resource="antlib.xml" classpath="../modules/image-size-report-task/build/image-size-report.jar"/>
             <fileset dir="${imageSet.uri}">
                 <include name="**/*.jpg"/>
             </fileset>
