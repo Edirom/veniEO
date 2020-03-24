@@ -8,6 +8,13 @@
     <target name="clean">
         <delete dir="output"/>
     </target>
+    
+    <target name="reset">
+        <delete dir="lib"/>
+        <delete dir="output"/>
+        <antcall target="isize-clean"/>
+    </target>
+
 
 
     <target name="report">
