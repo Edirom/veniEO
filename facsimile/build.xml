@@ -39,7 +39,7 @@
         <ant antfile="../modules/image-size-report-task/build.xml" target="jar" usenativebasedir="yes"/>
     </target>
     
-    <target name="prepare" description="builds and compiles the image-size-report-task module">
+    <target name="prepare" description="builds and compiles the image-size-report-task module and downloads saxon">
         <antcall target="saxon-prepare"/>
         <antcall target="isize-build"/>
     </target>
