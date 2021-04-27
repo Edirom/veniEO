@@ -74,7 +74,7 @@
         <delete file="output/imagesize-report.xml"/>
     </target>
     
-    <target name="facsimile" depends="report">
+    <target name="facsimile" depends="report" description="Transforms the result or the report task (run automatically when calling this target) into MEI.">
         <java classname="net.sf.saxon.Transform" classpath="${basedir}/lib/saxon/saxon9he.jar">
             <arg value="-s:output/imageSet.xml"/>
             <arg value="-xsl:from.imageSet.xsl"/>
