@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." name="mei-facsimile">
+<project basedir="." name="mei-facsimile" default="info">
     
     <property name="imageSet.uri" value="pics"/>
     <property name="graphics-uri.prefix" value=""/>
     <property name="saxon-path" value="${basedir}/lib/saxon/saxon9he.jar"/>
 <!--    <property name="transformations.base" value="."/>-->
+    <target name="info">
+        <echo>################################################</echo>
+        <echo># Welcom to the veniEO facsimile build script! #</echo>
+        <echo>################################################</echo>
+        <echo></echo>
+        <echo>In order to get started you first need to prepare your clone. In order to do so, first run:</echo>
+        <echo></echo>
+        <echo>ant prepare</echo>
+    </target>
+    
     <target name="clean">
         <delete dir="output"/>
     </target>
