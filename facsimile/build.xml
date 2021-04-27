@@ -5,6 +5,8 @@
     <property name="graphics-uri.prefix" value=""/>
     <property name="saxon-path" value="${basedir}/lib/saxon/saxon9he.jar"/>
 <!--    <property name="transformations.base" value="."/>-->
+    <property name="profile" value="default"/>
+    
     <target name="info">
         <echo>################################################</echo>
         <echo># Welcom to the veniEO facsimile build script! #</echo>
@@ -80,6 +82,7 @@
             <arg value="-xsl:from.imageSet.xsl"/>
             <arg value="-o:output/facsimile.xml"/>
             <arg value="graphics.prefix=${graphics.prefix}"/>
+            <arg value="profile=${profile}"/>
         </java>
         <delete file="output/imagesize-report.xml"/>
     </target>
