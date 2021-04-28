@@ -1,0 +1,4 @@
+[submodule "image-size-report-task"]
+	path = modules/image-size-report-task
+	url = https://github.com/Edirom/image-size-report-task.git
+	branch = develop

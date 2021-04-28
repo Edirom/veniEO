@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="mei-facsimile" default="info">
+    
+    <property name="imageSet.uri" value="pics"/>
+    <property name="graphics-uri.prefix" value=""/>
+    <property name="saxon-path" value="${basedir}/lib/saxon/saxon9he.jar"/>
+    <property name="profile" value="default"/>
+    
+    <target name="info">
+        <echo>################################################</echo>
+        <echo># Welcom to the veniEO facsimile build script! #</echo>
+        <echo>################################################</echo>
+        <echo></echo>
+        <echo>In order to get started you first need to prepare your clone. In order to do so, first run:</echo>
+        <echo></echo>
+        <echo>ant prepare</echo>
+    </target>
+    
+    <target name="clean">
+        <delete dir="output"/>
+    </target>
+    
+    <target name="reset">
+        <delete dir="lib"/>
+        <delete dir="output"/>
+        <antcall target="isize-clean"/>
+    </target>
+
+    <target name="saxon-download">
+        <mkdir dir="temp"/>
+        <get src="https://sourceforge.net/projects/saxon/files/Saxon-HE/9.9/SaxonHE9-9-1-7J.zip/download" dest="temp/"/>
+    </target>
+    
+    <target name="saxon-unzip" depends="saxon-download">
+        <mkdir dir="lib"/>
+        <unzip src="temp/download" overwrite="true" dest="lib/saxon/"/>
+    </target>
+    
+    <target name="saxon-prepare" depends="saxon-unzip">
+        <delete dir="temp/"/>
+        <echo>initialized</echo>
+    </target>
+
+    <target name="isize-clean">
+        <ant antfile="../modules/image-size-report-task/build.xml" target="clean" usenativebasedir="yes"/>
+    </target>
+    
+    <target name="isize-build">
+        <ant antfile="../modules/image-size-report-task/build.xml" target="build" usenativebasedir="yes"/>
+        <ant antfile="../modules/image-size-report-task/build.xml" target="jar" usenativebasedir="yes"/>
+    </target>
+    
+    <target name="prepare" description="builds and compiles the image-size-report-task module and downloads saxon">
+        <antcall target="saxon-prepare"/>
+        <antcall target="isize-build"/>
+    </target>
+
+    <target name="report" depends="clean">
+        <mkdir dir="output"/>
+        <taskdef resource="antlib.xml" classpath="../modules/image-size-report-task/build/image-size-report.jar"/>
+        <generate-image-size-report reportFile="output/imagesize-report.xml" checkUpToDate="false" failOnUnreadable="true" format="&lt;image name=&quot;{0}&quot; height=&quot;{1}&quot; width=&quot;{2}&quot; uuid=&quot;{3}&quot;/&gt;">
+            <!--<sort>-->
+            <fileset dir="${imageSet.uri}">
+                <include name="**/*.jpg"/>
+            </fileset>
+            <!--</sort>-->
+        </generate-image-size-report>
+        <loadfile srcfile="output/imagesize-report.xml" property="image-size-report"/>
+        <copy todir="output">
+            <file file="template/imageSet.xml"/>
+            <filterset>
+                <filter value="${image-size-report}" token="image-size-report"/>
+            </filterset>
+        </copy>
+        <delete file="output/imagesize-report.xml"/>
+    </target>
+    
+    <target name="facsimile" depends="report" description="Transforms the result or the report task (run automatically when calling this target) into MEI.">
+        <java classname="net.sf.saxon.Transform" classpath="${basedir}/lib/saxon/saxon9he.jar">
+            <arg value="-s:output/imageSet.xml"/>
+            <arg value="-xsl:from.imageSet.xsl"/>
+            <arg value="-o:output/facsimile.xml"/>
+            <arg value="graphics.prefix=${graphics.prefix}"/>
+            <arg value="profile=${profile}"/>
+        </java>
+        <delete file="output/imagesize-report.xml"/>
+    </target>
+
+</project>
