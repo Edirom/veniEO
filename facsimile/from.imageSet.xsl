@@ -22,12 +22,22 @@
     </xd:doc>
     <xsl:param name="graphics-uri.prefix"/>
     
+    <xd:doc scope="component">
+        <xd:desc>The profile parameter has two allowed values, ›default‹ and ›vertaktoid‹. The difference is that when set to ›veratktoid‹ additional attributes @ulx, @uly, @lrx and @lry will be created on each mei:surface element.</xd:desc>
+    </xd:doc>
+    <xsl:param name="profile">default</xsl:param>
     <xsl:template match="/">
         <xsl:element name="facsimile" namespace="http://www.music-encoding.org/ns/mei">
             <xsl:for-each select="imageSet/image">
                 <xsl:element name="surface" namespace="http://www.music-encoding.org/ns/mei">
                     <xsl:attribute name="xml:id" select="concat('edirom_surface_', @uuid)"/><!-- with saxon PE or EE uuid:randomUUID() -->
                     <xsl:attribute name="n" select="position()"/>
+                    <xsl:if test="$profile = 'vertaktoid'">
+                        <xsl:attribute name="ulx">0</xsl:attribute>
+                        <xsl:attribute name="uly">0</xsl:attribute>
+                        <xsl:attribute name="lrx" select="@width" />
+                        <xsl:attribute name="lry" select="@height" />
+                    </xsl:if>
                     <xsl:element name="graphic" namespace="http://www.music-encoding.org/ns/mei">
                         <xsl:attribute name="target" select="concat($graphics-uri.prefix,@name)"/>
                         <xsl:attribute name="xml:id" select="concat('edirom_graphic_', @uuid)"/><!-- with saxon PE or EE uuid:randomUUID() -->
