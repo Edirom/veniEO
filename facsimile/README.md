@@ -20,5 +20,5 @@ In order to use this task perform the following operations in terminal
 3. Create MEI facsimile tree` in `output/facsimile.xml:
 
    ```sh
-   ant facsimile -DimageSet.uri=PATH-TO-FOLD`ER-CONTAINING-IMAGES
+   ant facsimile -DimageSet.uri=PATH-TO-FOLDER-CONTAINING-IMAGES
    ```   
