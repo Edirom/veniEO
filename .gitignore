@@ -31,3 +31,4 @@ node_modules
 facsimile/pics
 facsimile/output
 facsimile/lib
+*.DS_Store
