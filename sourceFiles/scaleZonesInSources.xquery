@@ -16,26 +16,41 @@ declare option saxon:output "media-type=text/xml";
 declare option saxon:output "omit-xml-declaration=yes";
 declare option saxon:output "indent=no";
 
-(: Set the path to the document :)
-let $documentPath := '/Users/username/pathToResource/edirom_source_ID.xml'
+let $collection := collection('../../../BauDi/baudi-data/sources/music/cantatas?select=*.xml;recurse=yes')
+let $documentPath := '../../../BauDi/baudi-data/sources/music/cantatas/baudi-01-9d4b9769.xml'
 
-(: Set the scale factor :)
-let $scaleFactor := 2.985
-
-let $doc := doc($documentPath)
-for $zone in $doc//mei:facsimile//mei:zone
-    
-    (: Multiply all coordinate values with the scale factor :)
-    let $ulxNew :=  round($zone/@ulx * $scaleFactor)
-    let $ulyNew :=  round($zone/@uly * $scaleFactor)
-    let $lrxNew :=  round($zone/@lrx * $scaleFactor)
-    let $lryNew :=  round($zone/@lry * $scaleFactor)
-    
-    (: Replace all old coordinate values with the scaled coordinate values :)
-    return 
-        (
-          replace value of node $zone/@ulx with $ulxNew,
-          replace value of node $zone/@uly with $ulyNew,
-          replace value of node $zone/@lrx with $lrxNew,
-          replace value of node $zone/@lry with $lryNew
-        )
+(:let $doc := doc($documentPath):)
+for $document in $collection
+   let $doc := doc(document-uri($document))
+   for $surface in $doc//mei:facsimile/mei:surface
+       
+       let $graphicWidth := $surface/mei:graphic/@width
+       let $graphicHeight := $surface/mei:graphic/@height
+       let $widthNew := $surface/@lrx
+       let $widthOld := $graphicWidth
+       let $heightNew := $surface/@lry
+       let $heightOld := $graphicHeight
+       (: Calculate scale factors :)
+       let $scaleFactorWidth := ($widthNew div $widthOld)
+       let $scaleFactorHeight := ($heightNew div $heightOld)
+       
+       return
+       (
+           for $zone in $surface//mei:zone
+               (: Multiply all coordinate values with the scale factor :)
+               let $ulxNew :=  round($zone/@ulx * $scaleFactorWidth)
+               let $ulyNew :=  round($zone/@uly * $scaleFactorHeight)
+               let $lrxNew :=  round($zone/@lrx * $scaleFactorWidth)
+               let $lryNew :=  round($zone/@lry * $scaleFactorHeight)
+               
+               (: Replace all old coordinate values with the scaled coordinate values :)
+               return
+                   (
+                     replace value of node $zone/@ulx with $ulxNew,
+                     replace value of node $zone/@uly with $ulyNew,
+                     replace value of node $zone/@lrx with $lrxNew,
+                     replace value of node $zone/@lry with $lryNew
+                   ),
+           replace value of node $graphicWidth with string($widthNew),
+           replace value of node $graphicHeight with string($heightNew)
+       )
