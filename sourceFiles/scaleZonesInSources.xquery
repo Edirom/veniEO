@@ -17,10 +17,11 @@ declare option saxon:output "omit-xml-declaration=yes";
 declare option saxon:output "indent=no";
 
 let $collection := collection('../../../BauDi/baudi-data/sources/music/cantatas?select=*.xml;recurse=yes')
-let $documentPath := '../../../BauDi/baudi-data/sources/music/cantatas/baudi-01-9d4b9769.xml'
 
 (:let $doc := doc($documentPath):)
 for $document in $collection
+   
+   where $document/id('baudi-01-bdfac5dd')
    let $doc := doc(document-uri($document))
    for $surface in $doc//mei:facsimile/mei:surface
        

@@ -11,23 +11,27 @@ declare namespace mei = "http://www.music-encoding.org/ns/mei";
 declare namespace xlink = "http://www.w3.org/1999/xlink";
 declare namespace functx = "http://www.functx.com";
 
-(:declare option exist:serialize "method=xml media-type=text/xml omit-xml-declaration=yes indent=yes";:)
+declare option saxon:output "method=xml";
+declare option saxon:output "media-type=text/xml";
+declare option saxon:output "omit-xml-declaration=yes";
+declare option saxon:output "indent=no";
 
-let $sourceID := 'edirom_edition_ID'
+let $docToUpdate := doc('../../../BauDi/baudi-data/sources/music/cantatas/baudi-01-bdfac5dd.xml')
+let $docVertaktoidClean := doc('../../../../Downloads/ed-ka2.xml')
 
-let $docToUpdate := doc(concat('insertValues/',$sourceID,'.xml'))
-let $docVertaktoidClean := doc(concat('vertaktoid/clean/',$sourceID,'-clean.xml'))
-
-let $surfacesVertaktoid := $docVertaktoidClean//mei:surface
-let $mdivsVertaktoid := $docVertaktoidClean//mei:body/mei:mdiv
-
-(: TODO: Updates the surfaces, but simply adds the mdivs :)
+let $surfacesVertaktoid := $docVertaktoidClean//mei:surface (:[number(@n) gt 98]:)
+let $surfacesDocToUpdate := $docToUpdate//mei:surface (:[number(@n) gt 40]:)
+let $mdivsVertaktoid := $docVertaktoidClean//mei:mdiv
+let $mdivsDocToUpdate := $docToUpdate//mei:mdiv
 
 return
 	(
-	insert nodes $mdivsVertaktoid as last into $docToUpdate//mei:body,
-	for $i in 1 to count($docToUpdate//mei:surface)
-		let $zonesVertaktoid := $docVertaktoidClean//mei:surface[$i]/mei:zone
+	for $i in 1 to count($mdivsVertaktoid)
+		let $mdivVertaktoid := $mdivsVertaktoid[$i]
 		return
-    		insert nodes $zonesVertaktoid as last into $docToUpdate//mei:surface[$i]
+    		replace node $mdivsDocToUpdate[$i] with $mdivVertaktoid,
+	for $i in 1 to count($surfacesDocToUpdate)
+		let $zonesVertaktoid := $surfacesVertaktoid[$i]/mei:zone
+		return
+    		insert nodes $zonesVertaktoid as last into $surfacesDocToUpdate[$i]
     )

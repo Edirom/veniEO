@@ -1,37 +1,31 @@
-xquery version "3.0";
+xquery version "3.1";
 
 (: for use in eXist-db :)
-
+(: update to mei 5.0.0-dev :)
 declare namespace mei = "http://www.music-encoding.org/ns/mei";
 declare namespace util = "http://exist-db.org/xquery/util";
+import module namespace functx = "http://www.functx.com";
 
-(:let $sourceCollection := collection('xmldb:exist:///db/contents/edition-rwa/sources/music')
 
-for $source in $sourceCollection
-where $source//mei:parts
-    return
-   $source:)
-
-let $sourceURI := '/db/apps/pathToResource/edirom_source_ID.xml'
+let $sourceURI := '/db/apps/baudiData/sources/music/cantatas/baudi-01-58dcf426.xml'
 let $doc := doc($sourceURI)
-let $mdivSearch := ('mdiv1','mdiv2')
-let $instrVoiceLabels := for $instrVoice in $doc//mei:instrVoice
-                            let $instrVoiceLabel := $instrVoice/@label
+let $mdivSearch :=  ('vorspiel')
+let $perfResLabels := for $perfRes in $doc//mei:perfRes
+                            let $perfResLabel := $perfRes/@label
                             return
-                                $instrVoiceLabel
-let $instrVoiceIDs := for $instrVoice in $doc//mei:instrVoice
-                        let $instrVoiceID := $instrVoice/@xml:id
+                                $perfResLabel
+let $perfResIDs := for $perfRes in $doc//mei:perfRes
+                        let $perfResID := $perfRes/@xml:id
                         return
-                            $instrVoiceID
+                            $perfResID
 
 return
     
     <body>
         {
             for $mdiv in $mdivSearch
-            let $mdviID := concat('edirom_mdiv_', util:uuid())
-            let $mdivs := $doc//mei:mdiv[substring-after(./@label, ' | ') = $mdiv]
-            (:let $mdivs := $doc//mei:mdiv/@label:)
+            let $mdviID := concat('mdiv_', util:uuid())
+            let $mdivs := $doc//mei:mdiv[if(contains(@label, ' | ')) then(substring-after(@label, ' | ') = $mdiv) else(true())]
             return
                 
                 <mdiv
@@ -39,14 +33,12 @@ return
                     label="{$mdiv}">
                     <parts>
                         {
-                            for $instrVoiceLabel at $pos in $instrVoiceLabels
-                            let $sectionSearch := $mdivs[substring-before(@label, ' | ') = $instrVoiceLabel]//mei:section
+                            for $perfResLabel at $pos in $perfResLabels
+                            let $sectionSearch := $mdivs[functx:substring-before-if-contains(@label, ' | ') = $perfResLabel]//mei:section
                             return
-                                <part
-                                    xml:id="{concat('edirom_part_', util:uuid())}"
-                                    label="{$instrVoiceLabel}">
-                                    <staffDef
-                                        decls="{concat('#', $instrVoiceIDs[$pos])}"/>
+                                <part label="{$perfResLabel}" xml:id="{concat('edirom_part_', util:uuid())}">
+                                    
+                                    <staffDef n="{$pos}" lines="5" decls="{concat('#', $perfResIDs[$pos])}"/>
                                     {$sectionSearch}
                                 </part>
                         }
