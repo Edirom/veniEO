@@ -118,20 +118,24 @@ declare function local:generateConc($work as node(), $expression as node(), $ref
 
 let $path2editionFile := '/db/apps/baudiData/editions/baudi-14-2b84beeb/edirom/baudi-14-2b84beeb.xml'
 let $path2sources := '/db/apps/baudiData/sources/music'
-let $refSourceID := 'baudi-01-bdfac5dd'
+(: One reference source per expression! Can be the same. :)
+let $refSourceIDs := ('baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd')
 
 let $editionDoc := doc($path2editionFile)
 
 for $work in $editionDoc//work
     let $sourceColl := local:getSources($work, $editionDoc)
-    let $referenceSource := collection($path2sources)//mei:mei[@xml:id = $refSourceID]
     let $concordances := for $expression at $i in local:getExpressions($work)
+                            let $referenceSource := collection($path2sources)//mei:mei[@xml:id = $refSourceIDs[$i]]
+                            let $checkNoOfExprAndRefSources := count($refSourceIDs) eq count(local:getExpressions($work))
                             return
-                                local:generateConc($work, $expression, $referenceSource, $sourceColl, $i)
+                                if ($checkNoOfExprAndRefSources = true())
+                                then(local:generateConc($work, $expression, $referenceSource, $sourceColl, $i))
+                                else('Error: There are ' || count(local:getExpressions($work)) || ' expressions, but ' || count($refSourceIDs) || ' reference sources!')
 
 return
     <concordances xmlns="http://www.edirom.de/ns/1.3">
-        {$concordances}
+        {distinct-values($concordances)}
     </concordances>
 (:    update replace $editionDoc//work[@xml:id = $workID]/concordances/concordance with $concordance:)
     
