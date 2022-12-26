@@ -116,10 +116,17 @@ declare function local:generateConc($work as node(), $expression as node(), $ref
         }
 };
 
+(: XXXX update this variables XXXX :)
+
 let $path2editionFile := '/db/apps/baudiData/editions/baudi-14-2b84beeb/edirom/baudi-14-2b84beeb.xml'
 let $path2sources := '/db/apps/baudiData/sources/music'
-(: One reference source per expression! Can be the same. :)
-let $refSourceIDs := ('baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd')
+(: Give one reference source per expression! Can be the same. :)
+let $refSourceIDs := ('baudi-01-bdfac5dd','baudi-01-bdfac5d8','baudi-01-bdfac5d9','baudi-01-bdfac5d0')
+
+let $output := 'print' (:prossible values: 'print' or 'update':)
+
+(: XXXX END: update this variables XXXX :)
+
 
 let $editionDoc := doc($path2editionFile)
 
@@ -129,14 +136,16 @@ for $work in $editionDoc//work
                             let $referenceSource := collection($path2sources)//mei:mei[@xml:id = $refSourceIDs[$i]]
                             let $checkNoOfExprAndRefSources := count($refSourceIDs) eq count(local:getExpressions($work))
                             return
-                                if ($checkNoOfExprAndRefSources = true())
+                                if ($checkNoOfExprAndRefSources and exists($referenceSource))
                                 then(local:generateConc($work, $expression, $referenceSource, $sourceColl, $i))
-                                else('Error: There are ' || count(local:getExpressions($work)) || ' expressions, but ' || count($refSourceIDs) || ' reference sources!')
+                                else if ($checkNoOfExprAndRefSources and not(exists($referenceSource)))
+                                then(<error>{'The reference source ' || $refSourceIDs[$i] || ' does not exist!'}</error>)
+                                else(<error>{'There are ' || count(local:getExpressions($work)) || ' expressions, but ' || count($refSourceIDs) || ' reference sources!'}</error>)
 
+    let $concordances := <concordances xmlns="http://www.edirom.de/ns/1.3">{$concordances}</concordances>
 return
-    <concordances xmlns="http://www.edirom.de/ns/1.3">
-        {distinct-values($concordances)}
-    </concordances>
-(:    update replace $editionDoc//work[@xml:id = $workID]/concordances/concordance with $concordance:)
-    
-    (:xmldb:store('xmldb:exist:///db/contents/edition-rwa/resources/xml/concs/rwaVol_II-8/', $concFileName, $concordance):)
+    if ($output = 'print')
+    then($concordances)
+    else if ($output = 'update')
+    then(update replace $editionDoc//work[@xml:id = $work/@xml:id]/concordances with $concordances)
+    else('Output option "' || $output || '" unknown!')
