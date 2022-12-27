@@ -43,15 +43,20 @@ declare function local:getPlist($sourceColl as node()*, $measure as node(), $mdi
         string-join($plistItems, ' ') => normalize-space()
 };
 
-declare function local:getSources($work as node(), $editionDoc as node()) as node()* {
+declare function local:getSources($work as node(), $expression as node(), $editionDoc as node()) as node()* {
     let $workID := $work/string(@xml:id)
     let $workDoc := doc($work/@xlink:href)
-    let $workNavItemsSources := $editionDoc//work/id($workID)//navigatorItem[contains(@targets, 'baudi-01-')]
+    let $workNavItemsSources := $editionDoc//work/id($workID)//navigatorItem[contains(@targets, 'baudi-01-') or contains(@targets, 'baudi-14-')]
     let $sourceColl := for $source in $workNavItemsSources
                        return doc($source/@targets)
-    let $workSources := $sourceColl//mei:manifestation[.//mei:relation/@target[contains(., concat($workID, '.xml#', $workID, '_exp1'))]]/root()/mei:mei
+    let $expressionID := $expression/@xml:id
+    let $workExprSources := $sourceColl//mei:manifestation[.//mei:relation/@target[contains(., concat($workID, '.xml#', $expressionID))]]/ancestor::mei:mei
+    let $workSources := $sourceColl//mei:manifestation[.//mei:relation/@target[contains(., concat($workID, '.xml'))]]/ancestor::mei:mei
     return
-        $workSources
+        $workExprSources
+        (:if($workExprSources)
+        then($workExprSources)
+        else($workSources):)
 };
 
 declare function local:getExpressions($work as node()) as node()* {
@@ -99,7 +104,7 @@ declare function local:generateConc($work as node(), $expression as node(), $ref
                             }
     return
         element concordance {
-            attribute name {'Expression_' || $i},
+            attribute name {'expression_' || format-number($i,'000')},
             element names {$concNames},
             element groups {
                 attribute label {"movement"},
@@ -120,8 +125,9 @@ declare function local:generateConc($work as node(), $expression as node(), $ref
 
 let $path2editionFile := '/db/apps/baudiData/editions/baudi-14-2b84beeb/edirom/baudi-14-2b84beeb.xml'
 let $path2sources := '/db/apps/baudiData/sources/music'
+let $path2editions := '/db/apps/baudiData/editions'
 (: Give one reference source per expression! Can be the same. :)
-let $refSourceIDs := ('baudi-01-bdfac5dd','baudi-01-bdfac5d8','baudi-01-bdfac5d9','baudi-01-bdfac5d0')
+let $refSourceIDs := ('baudi-14-855dce96','baudi-14-d6e943c3','baudi-14-4e1c16e3','baudi-14-8059accb')
 
 let $output := 'print' (:prossible values: 'print' or 'update':)
 
@@ -131,9 +137,9 @@ let $output := 'print' (:prossible values: 'print' or 'update':)
 let $editionDoc := doc($path2editionFile)
 
 for $work in $editionDoc//work
-    let $sourceColl := local:getSources($work, $editionDoc)
     let $concordances := for $expression at $i in local:getExpressions($work)
-                            let $referenceSource := collection($path2sources)//mei:mei[@xml:id = $refSourceIDs[$i]]
+                            let $sourceColl := local:getSources($work, $expression, $editionDoc)
+                            let $referenceSource := (collection($path2sources) | collection($path2editions))//mei:mei[@xml:id = $refSourceIDs[$i]]
                             let $checkNoOfExprAndRefSources := count($refSourceIDs) eq count(local:getExpressions($work))
                             return
                                 if ($checkNoOfExprAndRefSources and exists($referenceSource))
