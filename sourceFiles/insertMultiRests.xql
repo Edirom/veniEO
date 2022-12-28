@@ -23,13 +23,13 @@ for $doc at $n in $collection
         for $measure in $measures
             let $measureNo := $measure/@label
             let $measureNoNext := $measure/following-sibling::mei:measure[1]/@label
-            let $measureRage := (number($measureNoNext) - number($measureNo))
+            let $measureRange := (number($measureNoNext) - number($measureNo))
             let $multiRest := <staff xmlns="http://www.music-encoding.org/ns/mei">
                                 <layer>
-                                   <multiRest num="{$measureRage}"/>
+                                   <multiRest num="{$measureRange}"/>
                                 </layer>
                               </staff>
             
-            where $measureRage gt 1
+            where $measureRange gt 1
             return
                 update insert $multiRest into $measure
