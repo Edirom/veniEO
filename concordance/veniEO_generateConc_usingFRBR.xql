@@ -27,6 +27,17 @@ declare function functx:substring-after-last($arg as xs:string?, $delim as xs:st
 declare function local:getPlist($sourceColl as node()*, $measure as node(), $mdivLabel as xs:string) as xs:string {
     let $matchesScores := $sourceColl//mei:measure[ancestor::mei:mdiv[(@label eq $mdivLabel) and ./*[not(self::mei:parts)]] and (@n = $measure/@n)]
     let $matchesParts := $sourceColl//mei:part[1]//mei:measure[ancestor::mei:mdiv[(@label eq $mdivLabel) and ./*[self::mei:parts]] and (@n = $measure/@n)]
+    (: for $part in $parts: resolve multiRests, dann ganzer Part weiterreichen! Am besten mit neuen @n. Reicht das für den ersten Part?:)
+    (: gleiches für scores:)
+    (: return: <mei><mdiv><parts/></mdiv></mei> (virtuell mit den benötigten IDs) :)
+    (:let $matchesScoresMultiRestResolved := for $match in $matchesScores[.//mei:multiRest]
+                                             let $matchID := $match/@xml:id
+                                             let $matchLabel := $match/number(@label)
+                                             let $multiRestNum := $match//mei:multiRest/@num
+                                             for $each at $n in 2 to $multiRestNum
+                                                let $multiRestResolvedLabel := $matchLabel + $n
+                                                return
+                                                   <measure label="{$multiRestResolvedLabel}" xml:id="{$matchID}" xmlns="http://www.music-encoding.org/ns/mei"/>:)
     let $plistItems := for $match in ($matchesScores | $matchesParts)
                          let $hasParts := exists($match/ancestor::mei:mdiv/mei:parts)
                          let $matchID := if($hasParts) then($match/ancestor::mei:mdiv/@xml:id) else($match/@xml:id)
@@ -65,6 +76,7 @@ declare function local:getExpressions($work as node()) as node()* {
 
 declare function local:getGroups($referenceSource as node(), $sourceColl as node()*){
     for $mdiv at $n in $referenceSource//mei:mdiv
+(:       where $n = 11:)
        let $mdivLabel := $mdiv/string(@label)
        return
            element group {
@@ -129,7 +141,7 @@ let $path2editions := '/db/apps/baudiData/editions'
 (: Give one reference source per expression! Can be the same. :)
 let $refSourceIDs := ('baudi-14-855dce96','baudi-14-d6e943c3','baudi-14-4e1c16e3','baudi-14-8059accb')
 
-let $output := 'print' (:prossible values: 'print' or 'update':)
+let $output := 'update' (:prossible values: 'print' or 'update':)
 
 (: XXXX END: update this variables XXXX :)
 
