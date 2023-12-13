@@ -24,6 +24,12 @@ declare function functx:substring-after-last($arg as xs:string?, $delim as xs:st
     replace($arg, concat('^.*', functx:escape-for-regex($delim)), '')
 };
 
+declare function functx:contains-any-of( $arg as xs:string?, $searchStrings as xs:string* ) as xs:boolean {
+
+   some $searchString in $searchStrings
+   satisfies contains($arg,$searchString)
+ } ;
+
 declare function local:getPlist($sourceColl as node()*, $measure as node(), $mdivLabel as xs:string) as xs:string {
     let $matchesScores := $sourceColl//mei:measure[ancestor::mei:mdiv[(@label eq $mdivLabel) and ./*[not(self::mei:parts)]] and (@n = $measure/@n)]
     let $matchesParts := $sourceColl//mei:part[1]//mei:measure[ancestor::mei:mdiv[(@label eq $mdivLabel) and ./*[self::mei:parts]] and (@n = $measure/@n)]
@@ -57,7 +63,7 @@ declare function local:getPlist($sourceColl as node()*, $measure as node(), $mdi
 declare function local:getSources($work as node(), $expression as node(), $editionDoc as node()) as node()* {
     let $workID := $work/string(@xml:id)
     let $workDoc := doc($work/@xlink:href)
-    let $workNavItemsSources := $editionDoc//work/id($workID)//navigatorItem[contains(@targets, 'baudi-01-') or contains(@targets, 'baudi-14-')]
+    let $workNavItemsSources := $editionDoc//work/id($workID)//navigatorItem[functx:contains-any-of(@targets, ('baudi-01-','baudi-14-'))]
     let $sourceColl := for $source in $workNavItemsSources
                        return doc($source/@targets)
     let $expressionID := $expression/@xml:id
@@ -137,9 +143,9 @@ declare function local:generateConc($work as node(), $expression as node(), $ref
 
 let $path2editionFile := '/db/apps/baudiData/editions/baudi-14-2b84beeb/edirom/baudi-14-2b84beeb.xml'
 let $path2sources := '/db/apps/baudiData/sources/music'
-let $path2editions := '/db/apps/baudiData/editions'
+let $path2editionSources := '/db/apps/baudiData/editions/baudi-14-2b84beeb'
 (: Give one reference source per expression! Can be the same. :)
-let $refSourceIDs := ('baudi-14-855dce96','baudi-14-d6e943c3','baudi-14-4e1c16e3','baudi-14-8059accb')
+let $refSourceIDs := ('baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd','baudi-01-bdfac5dd')
 
 let $output := 'update' (:prossible values: 'print' or 'update':)
 
@@ -161,6 +167,7 @@ for $work in $editionDoc//work
                                 else(<error>{'There are ' || count(local:getExpressions($work)) || ' expressions, but ' || count($refSourceIDs) || ' reference sources!'}</error>)
 
     let $concordances := <concordances xmlns="http://www.edirom.de/ns/1.3">{$concordances}</concordances>
+
 return
     if ($output = 'print')
     then($concordances)
