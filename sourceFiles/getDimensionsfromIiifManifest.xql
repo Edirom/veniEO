@@ -14,29 +14,29 @@ declare namespace fn="http://www.w3.org/2005/xpath-functions";
 let $collection := collection('/db/apps/baudiData/sources/music/cantatas')
 for $doc in $collection
 
-let $surfaces := $doc//mei:surface
+let $surfaces := $doc//*:surface
 
 for $surface at $n in $surfaces
-    let $graphic := $surface/mei:graphic
-    let $surfaceWidth := $surface/@lrx
-    let $surfaceHeight := $surface/@lry
+    let $graphic := $surface/*:graphic
+    let $graphicWidth := $surface/@width
+    let $graphicHeight := $surface/@height
     let $response :=
         <response>{
-            let $url := $graphic/@target || '/info.json'
+            let $url := $graphic/(@target|@url) || '/info.json'
             let $request := http:send-request(<http:request href="{$url}" method="GET" override-media-type="application/json"/>)
             return
                 $request
         }</response>
     let $convertData := util:binary-to-string($response/text())
-    let $height := parse-json($convertData)?height
-    let $width := parse-json($convertData)?width
+    let $heightNew := parse-json($convertData)?height
+    let $widthNew := parse-json($convertData)?width
     
     return
         (
-           if($surfaceHeight)
-           then(update replace $surfaceHeight with $height)
-           else(update insert attribute lry {$height} into $surface),
-           if($surfaceWidth)
-           then(update replace $surfaceWidth with $width)
-           else(update insert attribute lrx {$width} into $surface)
+           if($graphicHeight)
+           then(update replace $graphicHeight with $heightNew)
+           else(update insert attribute height {$heightNew} into $graphic),
+           if($graphicWidth)
+           then(update replace $graphicWidth with $widthNew)
+           else(update insert attribute lrx {$widthNew} into $graphic)
         )
